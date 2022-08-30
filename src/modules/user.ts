@@ -1,8 +1,6 @@
 import { dgraph, EnumType } from "j-dgraph";
-
-import { dgraph_config } from "../config";
-import { loading } from "../stores/core";
-
+import { dgraph_endpoint } from "../config";
+import { loading } from "$stores/core";
 import { getToken } from "./firebase";
 
 export class User {
@@ -12,7 +10,7 @@ export class User {
     constructor(dev = false) {
         this._dgraph = new dgraph({
             isDevMode: dev,
-            url: dgraph_config,
+            url: dgraph_endpoint,
             headers: async () => ({
                 "X-Auth-Token": await getToken()
             })
@@ -37,16 +35,8 @@ export class User {
     async createUser(u: any) {
         try {
             loading.set(true);
-            return await this._dgraph
-                .type('user')
-                .add({ id: 1, email: 1, displayName: 1, role: 1, username: 1 })
-                .set({
-                    email: u.email,
-                    displayName: u.displayName,
-                    link: { lid: 'link' },
-                    role: new EnumType('AUTHOR')
-                })
-                .build();
+            const r = await postData('addUser', u);
+            console.log(r);
         } catch (e: any) {
             console.error(e);
         } finally {
@@ -57,12 +47,12 @@ export class User {
     async updateUser(id: string, u: any) {
         try {
             loading.set(true);
-            return await this._dgraph
+            /*return await this._dgraph
                 .type('user')
                 .update({ id: 1, email: 1, displayName: 1, role: 1, username: 1 })
                 .filter(id)
                 .set(u)
-                .build();
+                .build();*/
         } catch (e: any) {
             console.error(e);
         } finally {
@@ -70,3 +60,13 @@ export class User {
         }
     }
 }
+
+const postData = async (url: string, data: any) => {
+    const r = await fetch(`/${url}`, {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
+    return await r.json();
+};
+
+

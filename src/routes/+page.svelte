@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
 	import { dev } from '$app/environment';
-	import { Feature } from '../modules/feature';
+	import { Feature } from '$modules/feature';
 
 	export async function load() {
 		const res = await fetch('/features');
@@ -37,7 +37,7 @@
 		userState,
 		showFeatureForm,
 		editFeatureRec
-	} from '../stores/core';
+	} from '$stores/core';
 	import { mdiDeleteVariant, mdiNoteEditOutline, mdiPlusBox, mdiThumbUpOutline } from '@mdi/js';
 
 	export let features: any[];
@@ -102,7 +102,7 @@
 	<CardText>
 		<strong> Login at the top right, add your feature, and vote on others! </strong>
 		<p />
-		This is <b>unofficial</b> and does not mean anything. The hope is so the Dgraph team takes these
+		This is<b>unofficial</b> and does not mean anything. The hope is so the Dgraph team takes these
 		seriously and puts focus on the features we want! The next official version is
 		<strong>
 			<a href="https://discuss.dgraph.io/t/dgraph-summer-update/17678">22.09</a>

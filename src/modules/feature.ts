@@ -1,7 +1,7 @@
 import { dgraph } from 'j-dgraph';
+import { dgraph_endpoint } from '../config';
 import { get } from 'svelte/store';
 
-import { dgraph_config } from '../config';
 import { featureStore, showSnackbarMsg, userState } from '../stores/core';
 
 import { getToken } from './firebase';
@@ -38,7 +38,7 @@ export class Feature {
     constructor(dev = false, fetch = null) {
         this._dgraph = new dgraph({
             isDevMode: dev,
-            url: dgraph_config,
+            url: dgraph_endpoint,
             headers: async () => ({
                 "X-Auth-Token": await getToken()
             }),
