@@ -1,0 +1,67 @@
+enum UserRole {
+  ADMIN
+  AUTHOR
+}
+
+type User @withSubscription {
+  id: ID!
+  email: String! @search(by: [hash]) @id
+  displayName: String
+  username: String
+  votedFor: [Feature]
+  suggested: [Feature]
+  role: UserRole! @search
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Feature @withSubscription {
+  id: ID!
+  name: String! @search(by: [fulltext, term, hash])
+  url: String! @search(by: [exact])
+  description: String!
+  author: User @hasInverse(field: suggested)
+  votes: [User] @hasInverse(field: votedFor)
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+# Remote types
+
+type FeatureDQL @remote {
+  id: ID!
+  name: String
+  url: String
+  description: String
+  totalVotes: Int
+  votes: [User]
+  author: User
+}
+
+type Query @withSubscription {
+  queryFeatureSortedByVotes(id: String = "0x1"): [FeatureDQL] @withSubscription @custom(dql: """
+    query q($id: string = "0x1") {
+      var(func: type(Feature)) {
+        totalVotes as count(Feature.votes)
+      }
+      queryFeatureSortedByVotes(
+        func:type(Feature), 
+        orderdesc: val(totalVotes)
+      ) {
+        name: Feature.name
+        url: Feature.url
+        description: Feature.description
+        author: Feature.author {
+          id: uid
+        }
+        id: uid
+        totalVotes: count(Feature.votes)
+        votes: Feature.votes @filter(uid($id)) {
+          id: uid
+        }
+      }
+    }
+  """)
+}
+
+# Dgraph.Authorization {"Header":"X-Auth-Token","Namespace":"https://dgraph.io/jwt/claims","JWKURL":"https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com","Audience":["dgraph-projects"]}
